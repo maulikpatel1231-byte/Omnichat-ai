@@ -54,9 +54,9 @@ object FileUtils {
         var localCachedPath: String? = null
 
         try {
-            // Save local copy to app internal cache for permanent viewing in chat history
-            val cacheDir = File(context.cacheDir, "attachments").apply { mkdirs() }
-            val cachedFile = File(cacheDir, "${System.currentTimeMillis()}_$name")
+            // Save local copy to app internal private sandbox storage (isolated by Android OS to this app only)
+            val privateVaultDir = File(context.filesDir, "private_vault").apply { mkdirs() }
+            val cachedFile = File(privateVaultDir, "${System.currentTimeMillis()}_$name")
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(cachedFile).use { output ->
                     input.copyTo(output)
@@ -152,6 +152,22 @@ object FileUtils {
             lower.endsWith(".html") -> "text/html"
             lower.endsWith(".md") -> "text/markdown"
             else -> "application/octet-stream"
+        }
+    }
+
+    fun getPrivateVaultStats(context: Context): Pair<Int, Long> {
+        val vaultDir = File(context.filesDir, "private_vault")
+        if (!vaultDir.exists()) return Pair(0, 0L)
+        val files = vaultDir.listFiles() ?: return Pair(0, 0L)
+        val totalSize = files.sumOf { it.length() }
+        return Pair(files.size, totalSize)
+    }
+
+    fun clearPrivateVault(context: Context): Boolean {
+        val vaultDir = File(context.filesDir, "private_vault")
+        if (!vaultDir.exists()) return true
+        return vaultDir.deleteRecursively().also {
+            vaultDir.mkdirs()
         }
     }
 }

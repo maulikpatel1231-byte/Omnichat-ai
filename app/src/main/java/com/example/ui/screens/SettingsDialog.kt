@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -259,7 +260,69 @@ fun SettingsDialog(
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 100% On-Device Privacy & Security Card
+                val vaultStats = remember { com.example.util.FileUtils.getPrivateVaultStats(context) }
+                var vaultFileCount by remember { mutableStateOf(vaultStats.first) }
+                var vaultSizeBytes by remember { mutableStateOf(vaultStats.second) }
+
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Zinc800),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Lock,
+                                contentDescription = "Privacy Shield",
+                                tint = EmeraldLight,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "100% On-Device Private Vault",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = EmeraldLight
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Aapki uploaded files, photos aur chats sirf aapke is phone ke private internal sandbox me surakshit rehte hain. Koi aur user ya app ise nahi dekh sakta.",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = Zinc400,
+                                lineHeight = 16.sp
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Files in Vault: $vaultFileCount (${vaultSizeBytes / 1024} KB)",
+                                style = MaterialTheme.typography.labelSmall.copy(color = Color.White)
+                            )
+                            if (vaultFileCount > 0) {
+                                androidx.compose.material3.TextButton(
+                                    onClick = {
+                                        com.example.util.FileUtils.clearPrivateVault(context)
+                                        vaultFileCount = 0
+                                        vaultSizeBytes = 0L
+                                        android.widget.Toast.makeText(context, "Private vault cleared!", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                ) {
+                                    Text("Clear Vault", color = Color(0xFFEF4444), fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Save button
                 Button(
