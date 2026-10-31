@@ -1,0 +1,6 @@
+{
+  "name": "OmniChat AI",
+  "description": "ChatGPT-style AI assistant with open-source models and unlimited free image generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
